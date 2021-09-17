@@ -53,7 +53,7 @@ This bot can mirror all your links to Google Drive!
 Type /{BotCommands.HelpCommand} to get a list of available commands
 '''
     buttons = button_build.ButtonMaker()
-    buttons.buildbutton("Repo", "https://github.com/ayushteke/slam_aria_mirror_bot_HEROKU")
+    buttons.buildbutton("Repo", "https://github.com/Anantgoel0123456/mirror-bot-old")
     buttons.buildbutton("Support Group", "https://t.me/Anant_Goel")
     reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
     LOGGER.info('UID: {} - UN: {} - MSG: {}'.format(update.message.chat.id, update.message.chat.username, update.message.text))
@@ -71,7 +71,7 @@ Type /{BotCommands.HelpCommand} to get a list of available commands
 def repo(update, context):
     bot.send_message(update.message.chat_id,
     reply_to_message_id=update.message.message_id,
-    text="https://github.com/ayushteke/slam_aria_mirror_bot_HEROKU", disable_web_page_preview=false)
+    text="https://github.com/Anantgoel0123456/mirror-bot-old", disable_web_page_preview=false)
 
 
 @run_async
