@@ -96,26 +96,7 @@ try:
     else:
         raise KeyError
 except KeyError:
-    USE_TELEGRAPH = False
-    
-try:
-    conn = psycopg2.connect(DB_URI)
-    cur = conn.cursor()
-    sql = "SELECT * from users;"
-    cur.execute(sql)
-    rows = cur.fetchall()  #returns a list ==> (uid, sudo)
-    for row in rows:
-        AUTHORIZED_CHATS.add(row[0])
-        if row[1]:
-            SUDO_USERS.add(row[0])
-except Error as e:
-    if 'relation "users" does not exist' in str(e):
-        mktable()
-    else:
-        LOGGER.error(e)
-        exit(1)
-finally:
-    conn.close()    
+    USE_TELEGRAPH = False   
 
 # Generate USER_SESSION_STRING
 LOGGER.info("Generating USER_SESSION_STRING")
