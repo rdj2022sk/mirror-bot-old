@@ -1,6 +1,6 @@
 from bot.helper.telegram_helper.message_utils import sendMessage
 from telegram.ext import run_async
-from bot import AUTHORIZED_CHATS, dispatcher, SUDO_USERS
+from bot import AUTHORIZED_CHATS, dispatcher
 from telegram.ext import CommandHandler
 from bot.helper.telegram_helper.filters import CustomFilters
 from telegram.ext import Filters
