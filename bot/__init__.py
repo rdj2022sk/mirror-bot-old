@@ -89,6 +89,7 @@ except:
 
 try:
     BOT_TOKEN = getConfig('BOT_TOKEN')
+    DB_URI = getConfig('DATABASE_URL')
     parent_id = getConfig('GDRIVE_FOLDER_ID')
     DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
     if DOWNLOAD_DIR[-1] != '/' or DOWNLOAD_DIR[-1] != '\\':
@@ -101,6 +102,23 @@ try:
 except KeyError as e:
     LOGGER.error("One or more env variables missing! Exiting now")
     exit(1)
+try:
+    conn = psycopg2.connect(DB_URI)
+    cur = conn.cursor()
+    sql = "SELECT * from users;"
+    cur.execute(sql)
+    rows = cur.fetchall()  #returns a list ==> (uid, sudo)
+    for row in rows:
+        AUTHORIZED_CHATS.add(row[0])
+        if row[1]:
+            SUDO_USERS.add(row[0])
+except Error as e:
+    if 'relation "users" does not exist' in str(e):
+        mktable()
+    else:
+        LOGGER.error(e)
+        exit(1)
+    
 
 try:
     if os.environ['USE_TELEGRAPH'].upper() == 'TRUE':
