@@ -6,7 +6,6 @@ from bot.helper.telegram_helper.filters import CustomFilters
 from telegram.ext import Filters
 from telegram import Update
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot.helper.ext_utils.db_handler import DbManger
 
 
 
