@@ -115,7 +115,6 @@ except Error as e:
         LOGGER.error(e)
         exit(1)
 finally:
-    cur.close()
     conn.close()    
 
 # Generate USER_SESSION_STRING
