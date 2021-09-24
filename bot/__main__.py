@@ -4,6 +4,7 @@ import pickle
 from pyrogram import idle
 from bot import app
 import os
+from os import execl, kill, path, remove
 from sys import executable
 import time
 from telegram import ParseMode, BotCommand
