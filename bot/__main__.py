@@ -3,7 +3,7 @@ import signal
 import pickle
 from pyrogram import idle
 from bot import app
-from os import execl, kill, path, remove
+import os
 from sys import executable
 import time
 from telegram import ParseMode, BotCommand
