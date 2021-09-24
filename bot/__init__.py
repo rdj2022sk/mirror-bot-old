@@ -4,19 +4,12 @@ import threading
 import time
 import random
 import string
-
 import aria2p
 import telegram.ext as tg
 from dotenv import load_dotenv
 from pyrogram import Client
 from telegraph import Telegraph
-
-import psycopg2
-from psycopg2 import Error
-
 import socket
-import faulthandler
-faulthandler.enable()
 
 socket.setdefaulttimeout(600)
 
@@ -29,8 +22,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     handlers=[logging.FileHandler('log.txt'), logging.StreamHandler()],
                     level=logging.INFO)
 
-LOGGER = logging.getLogger(__name__)
-
 load_dotenv('config.env')
 
 Interval = []
@@ -38,6 +29,9 @@ Interval = []
 
 def getConfig(name: str):
     return os.environ[name]
+
+
+LOGGER = logging.getLogger(__name__)
 
 def mktable():
     try:
@@ -79,7 +73,12 @@ status_reply_dict = {}
 download_dict = {}
 # Stores list of users and chats the bot is authorized to use in
 AUTHORIZED_CHATS = set()
-SUDO_USERS = set()
+if os.path.exists('authorized_chats.txt'):
+    with open('authorized_chats.txt', 'r+') as f:
+        lines = f.readlines()
+        for line in lines:
+            #    LOGGER.info(line.split())
+            AUTHORIZED_CHATS.add(int(line.split()[0]))
 try:
     achats = getConfig('AUTHORIZED_CHATS')
     achats = achats.split(" ")
@@ -93,49 +92,57 @@ try:
     DB_URI = getConfig('DATABASE_URL')
     parent_id = getConfig('GDRIVE_FOLDER_ID')
     DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
-    if not DOWNLOAD_DIR.endswith("/"):
+    if DOWNLOAD_DIR[-1] != '/' or DOWNLOAD_DIR[-1] != '\\':
         DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
     DOWNLOAD_STATUS_UPDATE_INTERVAL = int(getConfig('DOWNLOAD_STATUS_UPDATE_INTERVAL'))
     OWNER_ID = int(getConfig('OWNER_ID'))
     AUTO_DELETE_MESSAGE_DURATION = int(getConfig('AUTO_DELETE_MESSAGE_DURATION'))
     TELEGRAM_API = getConfig('TELEGRAM_API')
     TELEGRAM_HASH = getConfig('TELEGRAM_HASH')
-    UPSTREAM_REPO = getConfig('UPSTREAM_REPO')
-    UPSTREAM_BRANCH = getConfig('UPSTREAM_BRANCH')
 except KeyError as e:
     LOGGER.error("One or more env variables missing! Exiting now")
     exit(1)
+try:
+    if os.environ['USE_TELEGRAPH'].upper() == 'TRUE':
+        USE_TELEGRAPH = True
+    else:
+        raise KeyError
+except KeyError:
+    USE_TELEGRAPH = False   
+
+# Generate USER_SESSION_STRING
+LOGGER.info("Generating USER_SESSION_STRING")
+with Client(':memory:', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN) as app:
+    USER_SESSION_STRING = app.export_session_string()
+
+# Generate TELEGRAPH_TOKEN
+if USE_TELEGRAPH:
+    sname = ''.join(random.SystemRandom().choices(string.ascii_letters, k=8))
+    LOGGER.info("Using Telegra.ph")
+    LOGGER.info("Generating TELEGRAPH_TOKEN")
+    telegraph = Telegraph()
+    telegraph.create_account(short_name=sname)
+    TELEGRAPH_TOKEN = telegraph.get_access_token()
+if not USE_TELEGRAPH:
+    TELEGRAPH_TOKEN = None
+    LOGGER.info("Not Using Telegra.ph")
+    pass
 
 try:
-    conn = psycopg2.connect(DB_URI)
-    cur = conn.cursor()
-    sql = "SELECT * from users;"
-    cur.execute(sql)
-    rows = cur.fetchall()  #returns a list ==> (uid, sudo)
-    for row in rows:
-        AUTHORIZED_CHATS.add(row[0])
-        if row[1]:
-            SUDO_USERS.add(row[0])
-except Error as e:
-    if 'relation "users" does not exist' in str(e):
-        mktable()
-    else:
-        LOGGER.error(e)
-        exit(1)
-finally:
-    cur.close()
-    conn.close()
-
-LOGGER.info("Generating USER_SESSION_STRING")
-app = Client(':memory:', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN)
-
-#Generate Telegraph Token
-sname = ''.join(random.SystemRandom().choices(string.ascii_letters, k=8))
-LOGGER.info("Generating TELEGRAPH_TOKEN using '" + sname + "' name")
-telegraph = Telegraph()
-telegraph.create_account(short_name=sname)
-telegraph_token = telegraph.get_access_token()
-
+    HEROKU_API_KEY = getConfig('HEROKU_API_KEY')
+except KeyError:
+    logging.warning('HEROKU API KEY not provided!')
+    HEROKU_API_KEY = None
+try:
+    HEROKU_APP_NAME = getConfig('HEROKU_APP_NAME')
+except KeyError:
+    logging.warning('HEROKU APP NAME not provided!')
+    HEROKU_APP_NAME = None
+try:
+    UPTOBOX_TOKEN = getConfig('UPTOBOX_TOKEN')
+except KeyError:
+    logging.warning('UPTOBOX_TOKEN not provided!')
+    UPTOBOX_TOKEN = None
 try:
     MEGA_API_KEY = getConfig('MEGA_API_KEY')
 except KeyError:
@@ -151,50 +158,19 @@ except KeyError:
     MEGA_EMAIL_ID = None
     MEGA_PASSWORD = None
 try:
-    HEROKU_API_KEY = getConfig('HEROKU_API_KEY')
-except KeyError:
-    logging.warning('HEROKU API KEY not provided!')
-    HEROKU_API_KEY = None
-try:
-    HEROKU_APP_NAME = getConfig('HEROKU_APP_NAME')
-except KeyError:
-    logging.warning('HEROKU APP NAME not provided!')
-    HEROKU_APP_NAME = None
-try:
-    UPTOBOX_TOKEN = getConfig('UPTOBOX_TOKEN')
-except KeyError:
-    logging.info('UPTOBOX_TOKEN not provided!')
-    UPTOBOX_TOKEN = None
-try:
     INDEX_URL = getConfig('INDEX_URL')
     if len(INDEX_URL) == 0:
         INDEX_URL = None
 except KeyError:
     INDEX_URL = None
 try:
-    TORRENT_DIRECT_LIMIT = getConfig('TORRENT_DIRECT_LIMIT')
-    if len(TORRENT_DIRECT_LIMIT) == 0:
-        TORRENT_DIRECT_LIMIT = None
+    BUTTON_THREE_NAME = getConfig('BUTTON_THREE_NAME')
+    BUTTON_THREE_URL = getConfig('BUTTON_THREE_URL')
+    if len(BUTTON_THREE_NAME) == 0 or len(BUTTON_THREE_URL) == 0:
+        raise KeyError
 except KeyError:
-    TORRENT_DIRECT_LIMIT = None
-try:
-    CLONE_LIMIT = getConfig('CLONE_LIMIT')
-    if len(CLONE_LIMIT) == 0:
-        CLONE_LIMIT = None
-except KeyError:
-    CLONE_LIMIT = None
-try:
-    MEGA_LIMIT = getConfig('MEGA_LIMIT')
-    if len(MEGA_LIMIT) == 0:
-        MEGA_LIMIT = None
-except KeyError:
-    MEGA_LIMIT = None
-try:
-    TAR_UNZIP_LIMIT = getConfig('TAR_UNZIP_LIMIT')
-    if len(TAR_UNZIP_LIMIT) == 0:
-        TAR_UNZIP_LIMIT = None
-except KeyError:
-    TAR_UNZIP_LIMIT = None
+    BUTTON_THREE_NAME = None
+    BUTTON_THREE_URL = None
 try:
     BUTTON_FOUR_NAME = getConfig('BUTTON_FOUR_NAME')
     BUTTON_FOUR_URL = getConfig('BUTTON_FOUR_URL')
@@ -212,14 +188,6 @@ except KeyError:
     BUTTON_FIVE_NAME = None
     BUTTON_FIVE_URL = None
 try:
-    BUTTON_SIX_NAME = getConfig('BUTTON_SIX_NAME')
-    BUTTON_SIX_URL = getConfig('BUTTON_SIX_URL')
-    if len(BUTTON_SIX_NAME) == 0 or len(BUTTON_SIX_URL) == 0:
-        raise KeyError
-except KeyError:
-    BUTTON_SIX_NAME = None
-    BUTTON_SIX_URL = None
-try:
     STOP_DUPLICATE_MIRROR = getConfig('STOP_DUPLICATE_MIRROR')
     if STOP_DUPLICATE_MIRROR.lower() == 'true':
         STOP_DUPLICATE_MIRROR = True
@@ -227,30 +195,6 @@ try:
         STOP_DUPLICATE_MIRROR = False
 except KeyError:
     STOP_DUPLICATE_MIRROR = False
-try:
-    STOP_DUPLICATE_MEGA = getConfig('STOP_DUPLICATE_MEGA')
-    if STOP_DUPLICATE_MEGA.lower() == 'true':
-        STOP_DUPLICATE_MEGA = True
-    else:
-        STOP_DUPLICATE_MEGA = False
-except KeyError:
-    STOP_DUPLICATE_MEGA = False
-try:
-    VIEW_LINK = getConfig('VIEW_LINK')
-    if VIEW_LINK.lower() == 'true':
-        VIEW_LINK = True
-    else:
-        VIEW_LINK = False
-except KeyError:
-    VIEW_LINK = False
-try:
-    STOP_DUPLICATE_CLONE = getConfig('STOP_DUPLICATE_CLONE')
-    if STOP_DUPLICATE_CLONE.lower() == 'true':
-        STOP_DUPLICATE_CLONE = True
-    else:
-        STOP_DUPLICATE_CLONE = False
-except KeyError:
-    STOP_DUPLICATE_CLONE = False
 try:
     IS_TEAM_DRIVE = getConfig('IS_TEAM_DRIVE')
     if IS_TEAM_DRIVE.lower() == 'true':
@@ -298,13 +242,6 @@ try:
 except KeyError:
     IMAGE_URL = 'https://telegra.ph/file/019996f816db9ed576cff.jpg'
 
-IGNORE_PENDING_REQUESTS = False
-try:
-    if getConfig("IGNORE_PENDING_REQUESTS").lower() == "true":
-        IGNORE_PENDING_REQUESTS = True
-except KeyError:
-    pass
-
-updater = tg.Updater(token=BOT_TOKEN)
+updater = tg.Updater(token=BOT_TOKEN,use_context=True)
 bot = updater.bot
 dispatcher = updater.dispatcher
