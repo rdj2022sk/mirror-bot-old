@@ -211,5 +211,4 @@ def main():
     signal.signal(signal.SIGINT, fs_utils.exit_clean_up)
 
 app.start()
-main()
 idle()
