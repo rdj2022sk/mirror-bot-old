@@ -23,4 +23,3 @@ messages
 lxml
 telegraph
 psycopg2-binary
-aiohttp==4.0.0a1
