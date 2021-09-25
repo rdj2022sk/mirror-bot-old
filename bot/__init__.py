@@ -132,6 +132,102 @@ if not USE_TELEGRAPH:
     TELEGRAPH_TOKEN = None
     LOGGER.info("Not Using Telegra.ph")
     pass
+try:
+    STOP_DUPLICATE_CLONE = getConfig('STOP_DUPLICATE_CLONE')
+    if STOP_DUPLICATE_CLONE.lower() == 'true':
+        STOP_DUPLICATE_CLONE = True
+    else:
+        STOP_DUPLICATE_CLONE = False
+except KeyError:
+    STOP_DUPLICATE_CLONE = False
+try:
+    STOP_DUPLICATE_MIRROR = getConfig('STOP_DUPLICATE_MIRROR')
+    if STOP_DUPLICATE_MIRROR.lower() == 'true':
+        STOP_DUPLICATE_MIRROR = True
+    else:
+        STOP_DUPLICATE_MIRROR = False
+except KeyError:
+    STOP_DUPLICATE_MIRROR = False
+try:
+    STOP_DUPLICATE_MEGA = getConfig('STOP_DUPLICATE_MEGA')
+    if STOP_DUPLICATE_MEGA.lower() == 'true':
+        STOP_DUPLICATE_MEGA = True
+    else:
+        STOP_DUPLICATE_MEGA = False
+except KeyError:
+    STOP_DUPLICATE_MEGA = False
+try:
+    VIEW_LINK = getConfig('VIEW_LINK')
+    if VIEW_LINK.lower() == 'true':
+        VIEW_LINK = True
+    else:
+        VIEW_LINK = False
+except KeyError:
+    VIEW_LINK = False
+try:
+    TORRENT_DIRECT_LIMIT = getConfig('TORRENT_DIRECT_LIMIT')
+    if len(TORRENT_DIRECT_LIMIT) == 0:
+        TORRENT_DIRECT_LIMIT = None
+except KeyError:
+    TORRENT_DIRECT_LIMIT = None
+try:
+    CLONE_LIMIT = getConfig('CLONE_LIMIT')
+    if len(CLONE_LIMIT) == 0:
+        CLONE_LIMIT = None
+except KeyError:
+    CLONE_LIMIT = None
+try:
+    MEGA_LIMIT = getConfig('MEGA_LIMIT')
+    if len(MEGA_LIMIT) == 0:
+        MEGA_LIMIT = None
+except KeyError:
+    MEGA_LIMIT = None
+try:
+    TAR_UNZIP_LIMIT = getConfig('TAR_UNZIP_LIMIT')
+    if len(TAR_UNZIP_LIMIT) == 0:
+        TAR_UNZIP_LIMIT = None
+except KeyError:
+    TAR_UNZIP_LIMIT = None
+try:
+    BLOCK_MEGA_FOLDER = getConfig('BLOCK_MEGA_FOLDER')
+    if BLOCK_MEGA_FOLDER.lower() == 'true':
+        BLOCK_MEGA_FOLDER = True
+    else:
+        BLOCK_MEGA_FOLDER = False
+except KeyError:
+    BLOCK_MEGA_FOLDER = False
+try:
+    BLOCK_MEGA_LINKS = getConfig('BLOCK_MEGA_LINKS')
+    if BLOCK_MEGA_LINKS.lower() == 'true':
+        BLOCK_MEGA_LINKS = True
+    else:
+        BLOCK_MEGA_LINKS = False
+except KeyError:
+    BLOCK_MEGA_LINKS = False
+try:
+    BUTTON_SIX_NAME = getConfig('BUTTON_SIX_NAME')
+    BUTTON_SIX_URL = getConfig('BUTTON_SIX_URL')
+    if len(BUTTON_SIX_NAME) == 0 or len(BUTTON_SIX_URL) == 0:
+        raise KeyError
+except KeyError:
+    BUTTON_SIX_NAME = None
+    BUTTON_SIX_URL = None
+try:
+    BLOCK_MEGA_FOLDER = getConfig('BLOCK_MEGA_FOLDER')
+    if BLOCK_MEGA_FOLDER.lower() == 'true':
+        BLOCK_MEGA_FOLDER = True
+    else:
+        BLOCK_MEGA_FOLDER = False
+except KeyError:
+    BLOCK_MEGA_FOLDER = False
+try:
+    BLOCK_MEGA_LINKS = getConfig('BLOCK_MEGA_LINKS')
+    if BLOCK_MEGA_LINKS.lower() == 'true':
+        BLOCK_MEGA_LINKS = True
+    else:
+        BLOCK_MEGA_LINKS = False
+except KeyError:
+    BLOCK_MEGA_LINKS = False    
 
 try:
     HEROKU_API_KEY = getConfig('HEROKU_API_KEY')
