@@ -336,6 +336,23 @@ try:
 except KeyError:
     SHORTENER = None
     SHORTENER_API = None
+download_dict_lock = threading.Lock()
+status_reply_dict_lock = threading.Lock()
+# Key: update.effective_chat.id
+# Value: telegram.Message
+status_reply_dict = {}
+# Key: update.message.message_id
+# Value: An object of Status
+download_dict = {}
+# Stores list of users and chats the bot is authorized to use in
+AUTHORIZED_CHATS = set()
+SUDO_USERS = set()
+#Generate Telegraph Token
+sname = ''.join(random.SystemRandom().choices(string.ascii_letters, k=8))
+LOGGER.info("Generating TELEGRAPH_TOKEN using '" + sname + "' name")
+telegraph = Telegraph()
+telegraph.create_account(short_name=sname)
+telegraph_token = telegraph.get_access_token()
 try:
     IMAGE_URL = getConfig('IMAGE_URL')
     if len(IMAGE_URL) == 0:
