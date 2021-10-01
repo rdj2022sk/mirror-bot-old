@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2 import Error
-from bot import AUTHORIZED_CHATS, DB_URI, LOGGER
+from bot import AUTHORIZED_CHATS, SUDO_USERS, DB_URI, LOGGER
 
 class DbManger:
     def __init__(self):
@@ -40,6 +40,8 @@ class DbManger:
             self.conn.commit()
             self.disconnect()
             AUTHORIZED_CHATS.remove(chat_id)
+            if chat_id in SUDO_USERS:
+                SUDO_USERS.remove(chat_id)
             return 'Unauthorized successfully'
 
     def db_addsudo(self,chat_id: int):
@@ -52,6 +54,7 @@ class DbManger:
                 self.cur.execute(sql)
                 self.conn.commit()
                 self.disconnect()
+                SUDO_USERS.add(chat_id)
                 return 'Successfully promoted as Sudo'
             else:
                 sql = 'INSERT INTO users VALUES ({},TRUE);'.format(chat_id)
@@ -59,6 +62,7 @@ class DbManger:
                 self.conn.commit()
                 self.disconnect()
                 AUTHORIZED_CHATS.add(chat_id)
+                SUDO_USERS.add(chat_id)
                 return 'Successfully Authorized and promoted as Sudo'
 
     def db_rmsudo(self,chat_id: int):
@@ -70,4 +74,5 @@ class DbManger:
             self.cur.execute(sql)
             self.conn.commit()
             self.disconnect()
+            SUDO_USERS.remove(chat_id)
             return 'Successfully removed from Sudo'
