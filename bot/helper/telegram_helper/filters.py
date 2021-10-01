@@ -4,32 +4,32 @@ from bot import AUTHORIZED_CHATS, SUDO_USERS, OWNER_ID, download_dict, download_
 
 
 class CustomFilters:
-    class _OwnerFilter(MessageFilter):
+    class _OwnerFilter(BaseFilter):
         def filter(self, message):
             return bool(message.from_user.id == OWNER_ID)
 
     owner_filter = _OwnerFilter()
 
-    class _AuthorizedUserFilter(MessageFilter):
+    class _AuthorizedUserFilter(BaseFilter):
         def filter(self, message):
             id = message.from_user.id
             return bool(id in AUTHORIZED_CHATS or id == OWNER_ID)
 
     authorized_user = _AuthorizedUserFilter()
 
-    class _AuthorizedChat(MessageFilter):
+    class _AuthorizedChat(BaseFilter):
         def filter(self, message):
             return bool(message.chat.id in AUTHORIZED_CHATS)
 
     authorized_chat = _AuthorizedChat()
 
-    class _SudoUser(MessageFilter):
+    class _SudoUser(BaseFilter):
         def filter(self,message):
             return bool(message.from_user.id in SUDO_USERS)
 
     sudo_user = _SudoUser()
 
-    class _MirrorOwner(MessageFilter):
+    class _MirrorOwner(BaseFilter):
         def filter(self, message: Message):
             user_id = message.from_user.id
             if user_id == OWNER_ID:
