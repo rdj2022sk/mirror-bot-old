@@ -1,4 +1,4 @@
-from telegram.ext import MessageFilter
+from telegram.ext import BaseFilter
 from telegram import Message
 from bot import AUTHORIZED_CHATS, SUDO_USERS, OWNER_ID, download_dict, download_dict_lock
 
