@@ -47,7 +47,12 @@ def mktable():
         LOGGER.error(e)
         exit(1)
 
-
+IGNORE_PENDING_REQUESTS = False
+try:
+    if getConfig("IGNORE_PENDING_REQUESTS").lower() == "true":
+        IGNORE_PENDING_REQUESTS = True
+except KeyError:
+    pass
 
 LOGGER = logging.getLogger(__name__)
 
