@@ -1,4 +1,4 @@
-FROM priiiiyo/mega-sdk-python:latest
+FROM anantgoel0123456/anant-python:latest
 
 WORKDIR /usr/src/app
 RUN chmod 777 /usr/src/app
