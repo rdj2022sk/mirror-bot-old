@@ -374,9 +374,9 @@ telegraph_token = telegraph.get_access_token()
 try:
     IMAGE_URL = getConfig('IMAGE_URL')
     if len(IMAGE_URL) == 0:
-        IMAGE_URL = 'https://telegra.ph/file/019996f816db9ed576cff.jpg'
+        IMAGE_URL = 'https://telegra.ph/file/fa50d7c460eb61e5253a5.jpg'
 except KeyError:
-    IMAGE_URL = 'https://telegra.ph/file/019996f816db9ed576cff.jpg'
+    IMAGE_URL = 'https://telegra.ph/file/fa50d7c460eb61e5253a5.jpg'
     
 try:
     conn = psycopg2.connect(DB_URI)
